@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -11,7 +12,16 @@ namespace Windows11Upgrade {
         private readonly Guid guid = Guid.NewGuid();
         private readonly List<Language> languages = new List<Language>();
 
+        [ContractInvariantMethod]
+        protected void ObjectInvariant()
+        {
+            Contract.Invariant(this.guid != null);
+            Contract.Invariant(this.languages != null);
+        }
+
         public win11_downloadSelection() {
+            Contract.Requires(listLanguages != null);
+
             InitializeComponent();
             string urlLanguages;
             guid = Guid.NewGuid();
@@ -22,7 +32,9 @@ namespace Windows11Upgrade {
             var webClient = new WebClient();
             var languagesHtml = webClient.DownloadString(urlLanguages);
             var pattern = "(?s)<select id=\"product-languages\">(.*)?</select>";
+
             var langagesFiltered = Regex.Match(languagesHtml, pattern).Groups[1].Value;
+
             langagesFiltered.Replace("selected value", "value");
             langagesFiltered = "<options>" + langagesFiltered + "</options>";
             var languagesXml = new XmlDocument();
@@ -41,11 +53,23 @@ namespace Windows11Upgrade {
         }
 
         private void languageList_SelectionChange(object sender, EventArgs e) {
+            Contract.Requires(sender != null);
+            Contract.Requires(btnDownloadSystem != null);
+
+            Contract.Ensures(btnDownloadSystem.Text != "Download  Windows 11 ISO");
+
             btnDownloadSystem.Enabled = true;
             btnDownloadSystem.Text = "Download " + languages[listLanguages.SelectedIndex].name + " Windows 11 ISO";
         }
 
-        private void btnDownloadSystem_Click(object sender, EventArgs e) {
+        private void btnDownloadSystem_Click(object sender, EventArgs e)
+        {
+            Contract.Requires(sender != null);
+            Contract.Requires(listLanguages != null);
+            Contract.Requires(btnDownloadSystem != null);
+
+            Contract.Ensures(globals.downloadURL != null && globals.downloadURL != "");
+
             btnDownloadSystem.Text = "Please wait...";
             btnDownloadSystem.Enabled = false;
             string urlDownload;
@@ -78,7 +102,9 @@ namespace Windows11Upgrade {
                 }
         }
 
-        private void exit(object sender, FormClosingEventArgs e) {
+        private void exit(object sender, FormClosingEventArgs e)
+        {
+            Contract.Requires(sender != null);
             Environment.Exit(0);
         }
 

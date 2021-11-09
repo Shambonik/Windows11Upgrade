@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Windows.Forms;
 
 namespace Windows11Upgrade {
@@ -8,6 +9,9 @@ namespace Windows11Upgrade {
         }
 
         private void btn_selectIso_Click(object sender, EventArgs e) {
+
+            Contract.Ensures(globals.isoPath != null && globals.isoPath != "");
+
             using (var fileDialog = new OpenFileDialog()) {
                 fileDialog.InitialDirectory = "c:\\";
                 fileDialog.Filter = "ISO file (*.iso)|*.iso";
